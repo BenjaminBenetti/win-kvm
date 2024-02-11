@@ -9,6 +9,9 @@ without ever having to look at the Windows UI.
 
 # Requirements
 - [KVM](https://help.ubuntu.com/community/KVM/Installation)
+- [libvirt](https://libvirt.org/)
+- [virt-manager](https://virt-manager.org/)
+- [virt-install](https://manpages.org/virt-install)
 - [genisoimage](https://wiki.debian.org/genisoimage)
 
 # Usage
