@@ -1,4 +1,4 @@
-# Windows in KVM scripts 
+# Windows VM on KVM 
 
 Scripts to help you setup a windows VM on KVM for "remote" development. 
 With your new VM you will be able to edit windows code from your linux desktop,
