@@ -38,6 +38,21 @@ for mount in "${@}"; do
 done
 
 # =============================================
+# Download CDROMS 
+# =============================================
+echo "Setting up supporting CDROM disks"
+
+if [ ! -f ./vm/cdrom/virtio-win.iso ]; then
+  echo "Downloading virtio-win.iso..."
+  sudo wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso -O ./vm/cdrom/virtio-win.iso
+fi
+
+echo "Building custom script iso, win-tools.iso..."
+sudo genisoimage -J -joliet-long -r -o ./vm/cdrom/win-tools.iso ./script/win/ 
+
+echo "Done"
+
+# =============================================
 # Check for existing install
 # =============================================
 
@@ -61,19 +76,33 @@ else
 fi 
 
 # =============================================
-# Download CDROMS 
+# KVM Preflight 
 # =============================================
-echo "Setting up supporting CDROM disks"
 
-if [ ! -f ./vm/cdrom/virtio-win.iso ]; then
-  echo "Downloading virtio-win.iso..."
-  sudo wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso -O ./vm/cdrom/virtio-win.iso
+if cat /proc/cpuinfo | grep AuthenticAMD > /dev/null; then
+  if ! cat /etc/modprobe.d/kvm.conf | grep  '^options kvm_amd nested=1' > /dev/null; then 
+    echo "Nested virtualization is not enabled. Do you want to enable it now? [y/N]"
+    read -r response
+    if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+      echo "options kvm_amd nested=1" >> /etc/modprobe.d/kvm.conf
+      sudo modprobe -r kvm_amd
+      sudo modprobe kvm_amd nested=1
+    fi
+  fi
+fi 
+
+
+if cat /proc/cpuinfo | grep GenuineIntel > /dev/null; then
+    if ! cat /etc/modprobe.d/kvm.conf | grep  '^options kvm_intel nested=1' > /dev/null; then 
+    echo "Nested virtualization is not enabled. Do you want to enable it now? [y/N]"
+    read -r response
+    if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+      echo "options kvm_intel nested=1" >> /etc/modprobe.d/kvm.conf
+      sudo modprobe -r kvm_intel
+      sudo modprobe kvm_intel nested=1
+    fi
+  fi
 fi
-
-echo "Building custom script iso, win-tools.iso..."
-sudo genisoimage -J -joliet-long -r -o ./vm/cdrom/win-tools.iso ./script/win/ 
-
-echo "Done"
 
 # =============================================
 # Create VM
@@ -86,6 +115,7 @@ sudo virt-install --name=${NAME} \
   --memory memory=${RAM} \
   --memorybacking access.mode=shared \
   --vcpus cores=${CPU_CORES} \
+  --cpu host-passthrough \
   --check-cpu \
   --hvm \
   ${BOOT} \
@@ -93,7 +123,7 @@ sudo virt-install --name=${NAME} \
   --cdrom=${INSTALL_ISO} \
   --network=bridge:virbr0 \
   --noautoconsole \
-  --wait 1 \
+  --wait 0 \
   ${DATA_MOUNTS}
 
 echo "Open virt-manager to complete the installation"

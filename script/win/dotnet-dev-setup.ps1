@@ -8,8 +8,7 @@ choco install dotnet -y
 
 # install latest LTS dotnet sdk
 wget https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1 -o $Env:Temp\dotnet-install.ps1
-$Env:Temp\dotnet-install.ps1 -Channel LTS
-setx /M PATH "%PATH%;C:\Users\windo\AppData\Local\Microsoft\dotnet\"
+& $Env:Temp\dotnet-install.ps1 -Channel LTS
 
 # install visual studio code
 choco install vscode -y

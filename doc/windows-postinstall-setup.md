@@ -28,6 +28,7 @@ There are two scripts that will run the other scripts for you.
 
 ### Optional
 - `dotnet-dev-setup.ps1` - Installs all the tools you will need for dotnet development. Including `vscode` for remote tunneling.
+- `docker-setup.ps1` - Installs docker desktop. This will allow you to run docker containers on your Windows VM.
 
 ## Switch to local account 
 To make the windows VM more durable. You might want to switch to a local account. Using a local account will bypass 
