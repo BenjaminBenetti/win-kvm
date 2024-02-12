@@ -42,10 +42,20 @@ done
 # =============================================
 
 BOOT=""
-if [ -f ./vm/disk/${DISK_NAME}.qcow2 ]; then
+if (( $(sudo virsh list --all | grep ${NAME} | wc -l) != 0 )); then
   echo "Existing install detected" 
-  echo "maybe you want to ./run.sh it?"
-  exit 1 
+  echo "Would you like to overwrite the existing machine defintion (disk will be kept). [y/N]"
+  read -r response
+  if [[ ! $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Exiting"
+    exit 0
+  fi
+
+  echo "Removing existing machine definition"
+  sudo virsh destroy ${NAME}
+  sudo virsh undefine --nvram ${NAME}
+  
+  BOOT="--boot=hd,cdrom"
 else 
   BOOT="--boot=cdrom"
 fi 
@@ -61,7 +71,7 @@ if [ ! -f ./vm/cdrom/virtio-win.iso ]; then
 fi
 
 echo "Building custom script iso, win-tools.iso..."
-sudo genisoimage -o ./vm/cdrom/win-tools.iso ./script/win/ 
+sudo genisoimage -J -joliet-long -r -o ./vm/cdrom/win-tools.iso ./script/win/ 
 
 echo "Done"
 
@@ -69,7 +79,6 @@ echo "Done"
 # Create VM
 # =============================================
 echo "Creating Windows VM..."
-echo "Open virt-manager to complete the installation"
 sudo virt-install --name=${NAME} \
   --disk path=$(pwd)/vm/disk/${DISK_NAME}.qcow2,size=${DISK_SIZE},format=qcow2,bus=virtio \
   --disk path=$(pwd)/vm/cdrom/virtio-win.iso,device=cdrom \
@@ -83,7 +92,10 @@ sudo virt-install --name=${NAME} \
   --os-variant=win11 \
   --cdrom=${INSTALL_ISO} \
   --network=bridge:virbr0 \
+  --noautoconsole \
+  --wait 1 \
   ${DATA_MOUNTS}
 
+echo "Open virt-manager to complete the installation"
 
 popd >> /dev/null
