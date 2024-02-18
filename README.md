@@ -22,10 +22,17 @@ You can download a windows ISO [here ](https://www.microsoft.com/en-us/software-
 
 place the ISO in the `vm/iso/` directory with the name `win.iso` (as shown by the placeholder file)
 
-### Run
-Now you are ready to start your windows VM. You can use the run command to start the VM. 
-The run command is very simple. It only takes a list of directories to mount into windows. All the directories 
-you specify will be available in windows under the same drive. Usually the `Z:` drive.
+### Install
+Now you are ready to install your windows VM. You can use the install command to setup the VM. 
+The install command is very simple. It only takes a list of directories to mount into windows. All the directories will appear as drives in Windows. 
 ```bash 
-./run.sh /home/user/mymount/point/ /home/user/another/mount/point/ .... 
+./install.sh /home/user/mymount/point/ /home/user/another/mount/point/ .... 
 ```
+
+#### additional options 
+You can run `install.sh --help` to see a list of additional environment variables 
+that you can set to customize your VM installation. 
+
+### Post Install Windows setup. 
+After the install is complete you may want to setup the VM (optional).
+Follow [this setup guide](./doc/windows-postinstall-setup.md).
