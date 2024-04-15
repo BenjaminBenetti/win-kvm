@@ -15,6 +15,7 @@ if [[ $1 == "-h" ]] || [[ $1 == "--help" ]]; then
     echo "  RAM: The amount of RAM to allocate to the VM in megabytes (default: 8000)"
     echo "  CPU_CORES: The number of CPU cores to allocate to the VM (default: the number of cores on the host)"
     echo "  INSTALL_ISO: The path to the Windows installation ISO (default: ./vm/iso/win.iso)"
+    echo "  NETWORK_BRIDGE: The name of the network bridge to use for the VM (default: virbr0)"
     echo "For example to set the disk size to 420GB, RAM to 16GB, and CPU cores to 4, you can run:"
     echo "  DISK_SIZE=420 RAM=16000 CPU_CORES=4 ./install.sh"
     exit 0
@@ -31,6 +32,7 @@ DISK_SIZE=${DISK_SIZE:-100}
 
 RAM=${RAM:-8000}
 CPU_CORES=${CPU_CORES:-$(cat /proc/cpuinfo  | grep -i 'cpu cores' | grep -E '[0-9]+' -o | head -1)}
+NETWORK_BRIDGE=${NETWORK_BRIDGE:-virbr0}
 
 DATA_MOUNTS=""
 for mount in "${@}"; do
@@ -121,7 +123,7 @@ sudo virt-install --name=${NAME} \
   ${BOOT} \
   --os-variant=win11 \
   --cdrom=${INSTALL_ISO} \
-  --network=bridge:virbr0 \
+  --network=bridge:${NETWORK_BRIDGE} \
   --noautoconsole \
   --wait 0 \
   ${DATA_MOUNTS}
